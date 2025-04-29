@@ -1,73 +1,612 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Modern Chat Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Basic reset and font */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Animated gradient background */
+            background-color: #0c101b;
+            background-image: linear-gradient(to bottom, #03a9f4, #000000);
+            animation: gradient-animation 20s ease infinite;
+            background-size: 150% 150%;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        /* Gradient animation */
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Chat container styling */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 95%; /* Responsive width */
+            max-width: 800px; /* Max width */
+            height: 90vh; /* Responsive height */
+            max-height: 800px; /* Max height */
+            background-color: rgba(26, 32, 44, 0.85); /* Semi-transparent dark background */
+            border-radius: 1.5rem; /* Rounded corners */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25); /* Soft shadow */
+            backdrop-filter: blur(12px); /* Frosted glass effect */
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle border */
+            transition: all 0.3s ease; /* Smooth transitions */
+            overflow: hidden; /* Ensure content stays within rounded corners */
+        }
+        .chat-container:hover {
+            transform: translateY(-4px); /* Slight lift on hover */
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+        }
+
+        /* Header styling */
+        header {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Subtle bottom border */
+            flex-shrink: 0; /* Prevent header from shrinking */
+        }
+        header h1 {
+            font-size: 2.25rem; /* Large title */
+            font-weight: 700; /* Bold */
+            color: #f7fafc; /* Light text color */
+            letter-spacing: -0.02em; /* Tighten letter spacing */
+            /* Animated text gradient */
+            background: linear-gradient(90deg, #4a148c, #e65100, #1a237e, #00695c, #d84315, #1a237e, #4a148c);
+            background-size: 400% 400%;
+            animation: text-gradient-animation 10s ease infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block; /* Needed for background clip */
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Text shadow for depth */
+        }
+
+        /* Text gradient animation */
+        @keyframes text-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Main chat area styling */
+        main {
+            flex: 1; /* Take remaining space */
+            overflow-y: auto; /* Enable scrolling for messages */
+            padding: 1.5rem; /* Padding around messages */
+            display: flex;
+            flex-direction: column; /* Stack messages vertically */
+        }
+
+        /* Individual message styling */
+        .message {
+            max-width: 80%; /* Limit message width */
+            margin-bottom: 1rem; /* Space between messages */
+            padding: 0.8rem 1.2rem; /* Padding inside messages */
+            border-radius: 1.25rem; /* Rounded message bubbles */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            clear: both; /* Ensure messages don't overlap floats */
+            animation: message-animation 0.3s ease-out; /* Fade-in animation */
+            background-color: rgba(255, 255, 255, 0.05); /* Very subtle background */
+            border: 1px solid rgba(255, 255, 255, 0.03); /* Faint border */
+            backdrop-filter: blur(5px); /* Slight blur for depth */
+            transition: all 0.2s ease; /* Smooth hover effect */
+            word-wrap: break-word; /* Prevent long words from overflowing */
+        }
+        .message:hover {
+            transform: translateY(-2px); /* Lift on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+        }
+
+        /* Message fade-in animation */
+        @keyframes message-animation {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* User message specific styling */
+        .user-message {
+            background: linear-gradient(90deg, #4a5568, #718096); /* Gray gradient */
+            color: #fff; /* White text */
+            margin-left: auto; /* Align to the right */
+            border-top-right-radius: 0.5rem; /* Slightly flattened top-right corner */
+            border-bottom-right-radius: 1.25rem;
+        }
+        .user-message:hover {
+             background: linear-gradient(90deg, #2d3748, #4a5568); /* Darker gradient on hover */
+        }
+
+        /* Bot message specific styling */
+        .bot-message {
+            background-color: rgba(45, 55, 72, 0.7); /* Darker semi-transparent background */
+            color: #e2e8f0; /* Lighter gray text */
+            margin-right: auto; /* Align to the left */
+            border-top-left-radius: 0.5rem; /* Slightly flattened top-left corner */
+            border-bottom-left-radius: 1.25rem;
+        }
+         .bot-message.typing-indicator p {
+            font-style: italic;
+            color: #a0aec0; /* Lighter color for typing indicator */
+        }
+
+        /* Sender name styling */
+        .sender-name {
+            display: block;
+            font-size: 0.75rem; /* Smaller font size */
+            color: #a0aec0; /* Muted color */
+            margin-bottom: 0.25rem; /* Space below name */
+            font-weight: 500; /* Medium weight */
+        }
+        .user-message .sender-name {
+            text-align: right; /* Align sender name right for user */
+             color: #e2e8f0; /* Lighter name for user */
+        }
+        .bot-message .sender-name {
+            text-align: left; /* Align sender name left for bot */
+        }
+
+        /* Footer (input area) styling */
+        footer {
+            padding: 1rem 1.5rem; /* Padding */
+            background-color: rgba(26, 32, 44, 0.9); /* Darker, more opaque background */
+            border-top: 1px solid rgba(255, 255, 255, 0.05); /* Subtle top border */
+            backdrop-filter: blur(10px); /* Stronger blur */
+            flex-shrink: 0; /* Prevent footer from shrinking */
+        }
+
+        /* Input container within footer */
+        .input-container {
+            display: flex;
+            align-items: center; /* Vertically align items */
+            width: 100%;
+            max-width: 750px; /* Limit input area width */
+            margin: 0 auto; /* Center input container */
+        }
+
+        /* Message input field styling */
+        footer input {
+            flex: 1; /* Take available space */
+            border: none;
+            outline: none;
+            padding: 0.9rem 1.25rem; /* Comfortable padding */
+            font-size: 1rem; /* Standard font size */
+            border-radius: 1.5rem; /* Fully rounded */
+            background-color: rgba(45, 55, 72, 0.8); /* Dark input background */
+            color: #f7fafc; /* Light text color */
+            margin-right: 0.75rem; /* Space before button */
+            transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions */
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle border */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Inner shadow */
+        }
+        footer input:focus {
+            border-color: #00b0ff; /* Highlight border on focus */
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(0, 176, 255, 0.2); /* Focus ring */
+        }
+
+        /* Send button styling */
+        footer button {
+            border: none;
+            background: linear-gradient(45deg, #00796b, #00897b); /* Teal gradient */
+            color: #fff;
+            padding: 0.9rem; /* Padding for a circular button feel */
+            width: 48px; /* Fixed width */
+            height: 48px; /* Fixed height */
+            border-radius: 50%; /* Make it circular */
+            cursor: pointer;
+            transition: all 0.2s ease; /* Smooth transitions */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Button shadow */
+            display: flex; /* Center icon */
+            align-items: center; /* Center icon */
+            justify-content: center; /* Center icon */
+        }
+        footer button:hover {
+            background: linear-gradient(45deg, #00695c, #00796b); /* Darker gradient on hover */
+            transform: translateY(-2px); /* Lift effect */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+        }
+        footer button:active {
+            transform: translateY(0); /* Press effect */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Smaller shadow when active */
+        }
+        footer button svg {
+             margin-left: 2px; /* Slight adjustment for visual centering */
+        }
+
+        /* Login Form Styles */
+        #login-form {
+            background-color: rgba(26, 32, 44, 0.95); /* Dark, slightly transparent */
+            padding: 2.5rem; /* More padding */
+            border-radius: 1.5rem; /* Rounded corners */
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+            backdrop-filter: blur(12px); /* Frosted glass */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+            width: 90%; /* Responsive width */
+            max-width: 400px; /* Max width */
+            text-align: center;
+            margin: auto; /* Center horizontally */
+            position: absolute; /* Needed for centering in viewport */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center precisely */
+        }
+        #login-form h2 {
+            font-size: 1.8rem; /* Slightly smaller heading */
+            font-weight: 700;
+            color: #f7fafc;
+            margin-bottom: 2rem; /* More space below heading */
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+        }
+        #login-form .input-group { /* Renamed for clarity */
+            margin-bottom: 1.5rem;
+            text-align: left; /* Align labels left */
+        }
+        #login-form label {
+            display: block;
+            font-size: 0.9rem; /* Smaller label */
+            font-weight: 600;
+            color: #cbd5e0; /* Lighter gray */
+            margin-bottom: 0.5rem;
+        }
+        #login-form input {
+            width: 100%;
+            padding: 0.9rem 1rem; /* Input padding */
+            border-radius: 0.75rem; /* Rounded input */
+            border: 1px solid rgba(255, 255, 255, 0.15); /* Slightly more visible border */
+            background-color: rgba(45, 55, 72, 0.8); /* Dark input background */
+            color: #f7fafc;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        #login-form input:focus {
+            border-color: #00b0ff;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(0, 176, 255, 0.2); /* Focus ring */
+        }
+        #login-form button {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(45deg, #00796b, #00897b); /* Match send button gradient */
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        #login-form button:hover {
+            background: linear-gradient(45deg, #00695c, #00796b);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        #login-form button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #error-message {
+            color: #ff6b6b; /* Brighter error color */
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            text-align: center;
+            padding: 0.6rem;
+            background-color: rgba(255, 107, 107, 0.1); /* Reddish background */
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            animation: fadeIn 0.3s ease-in-out;
+            display: none; /* Start hidden */
+        }
+        .hidden {
+             display: none !important; /* Use important to override other display properties if needed */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Scrollbar styling (optional, for a more polished look) */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+        main::-webkit-scrollbar-track {
+            background: rgba(26, 32, 44, 0.5);
+            border-radius: 4px;
+        }
+        main::-webkit-scrollbar-thumb {
+            background-color: rgba(113, 128, 150, 0.5);
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        main::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(113, 128, 150, 0.7);
+        }
+
+    </style>
 </head>
-
-<body class="bg-gray-900 text-white">
-    <div id="login-form" class="flex items-center justify-center h-screen">
-        <div class="w-full max-w-xs">
-            <form class="bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <div class="mb-4">
-                    <label class="block text-gray-300 text-sm font-bold mb-2" for="username">Username</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Username">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-300 text-sm font-bold mb-2" for="password">Password</label>
-                    <input class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************">
-                </div>
-                <div class="flex items-center justify-between">
-                    <button id="login-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Sign In</button>
-                </div>
-                <p id="error-message" class="text-red-500 text-xs italic mt-4 hidden">Invalid credentials.</p>
-            </form>
+<body>
+    <div id="login-form"> <h2>Login</h2>
+        <div id="error-message"></div> <div class="input-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username">
         </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <button id="login-button">Log In</button>
     </div>
 
-    <div id="chat-container" class="hidden flex flex-col h-screen">
-        <div class="flex-1 overflow-y-auto p-4" id="chat-history"></div>
-        <div class="p-4 bg-gray-800 flex">
-            <input id="message-input" type="text" placeholder="Type your message..." class="flex-1 p-2 rounded bg-gray-700 text-white focus:outline-none">
-            <button id="send-button" class="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Send</button>
-        </div>
+    <div class="chat-container hidden" id="chat-container"> <header>
+            <h1 class="animated-text">NONAME CHAT</h1>
+        </header>
+        <main id="chat-history">
+            <div class="message bot-message">
+                 <p class="sender-name">Bot</p>
+                 <p>Welcome! Please log in to start chatting.</p>
+            </div>
+        </main>
+        <footer>
+            <div class="input-container">
+                <input type="text" id="message-input" placeholder="Type your message..." />
+                <button id="send-button" aria-label="Send Message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizonal"><path d="m2 12 10-9v7c13 0 13 9 0 9v7l-10-9Z"/><path d="M22 12h-8"/></svg>
+                </button>
+            </div>
+        </footer>
     </div>
 
-    <div id="n8n-chat"></div>
+<script>
+    // DOM Elements
+    const chatHistory = document.getElementById('chat-history');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const chatContainer = document.getElementById('chat-container');
+    const loginForm = document.getElementById('login-form');
+    const loginButton = document.getElementById('login-button');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const errorMessage = document.getElementById('error-message');
 
-    <script src="chat-app.js"></script>
-    <script>
-        createChat({
-            webhookUrl: 'https://n8n-pgfu.onrender.com:443/webhook/a85bc1d4-0ad6-4723-b777-8bb42290656c/chat',
-            webhookConfig: {
+    // Webhook URL
+    const webhookUrl = 'https://n8n-pgfu.onrender.com:443/webhook/a85bc1d4-0ad6-4723-b777-8bb42290656c/chat';
+    let currentUsername = 'User'; // Default username, updated on login
+
+    // --- UI Control Functions ---
+
+    function showLoginForm() {
+        loginForm.classList.remove('hidden');
+        chatContainer.classList.add('hidden');
+        errorMessage.classList.add('hidden'); // Hide error on show
+        errorMessage.textContent = ''; // Clear previous errors
+    }
+
+    function showChatContainer(username) {
+        currentUsername = username; // Store username for chat messages
+        loginForm.classList.add('hidden');
+        chatContainer.classList.remove('hidden');
+        // Clear chat history except for the initial welcome message (optional)
+        // chatHistory.innerHTML = ''; // Uncomment to clear history on login
+        addMessage(`Welcome, ${username}! How can I assist you today?`, 'bot', 'Bot');
+    }
+
+    // --- Chat Functions ---
+
+    /**
+     * Adds a message to the chat history UI.
+     * @param {string} message - The text content of the message.
+     * @param {'user' | 'bot' | 'system'} senderType - The type of sender ('user', 'bot', or 'system' for errors).
+     * @param {string} senderName - The display name of the sender (e.g., 'You', 'Bot', 'System').
+     */
+    function addMessage(message, senderType, senderName) {
+        const messageElement = document.createElement('div');
+        // Determine message class based on sender type
+        let messageClass = 'bot-message'; // Default to bot
+        if (senderType === 'user') {
+            messageClass = 'user-message';
+        } else if (senderType === 'system') {
+            messageClass = 'bot-message system-error'; // Optional: style system errors differently
+        }
+        messageElement.classList.add('message', messageClass);
+
+        // Create and append sender name paragraph
+        const senderNameElement = document.createElement('p');
+        senderNameElement.classList.add('sender-name');
+        senderNameElement.textContent = senderName;
+
+        // Create and append message text paragraph
+        const messageTextElement = document.createElement('p');
+        messageTextElement.textContent = message; // Use textContent to prevent XSS
+
+        // Append elements to the message container
+        messageElement.appendChild(senderNameElement);
+        messageElement.appendChild(messageTextElement);
+
+        // Add the complete message element to the chat history
+        chatHistory.appendChild(messageElement);
+
+        // Scroll to the bottom of the chat history
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+
+    /**
+     * Sends the user's message to the webhook and displays the response.
+     */
+    async function sendMessage() {
+        const messageText = messageInput.value.trim();
+        if (!messageText) return; // Do nothing if input is empty
+
+        // Display user's message immediately
+        addMessage(messageText, 'user', currentUsername); // Use logged-in username
+        messageInput.value = ''; // Clear the input field
+
+        // Add a typing indicator for the bot
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('message', 'bot-message', 'typing-indicator');
+        typingIndicator.innerHTML = `<p class="sender-name">Bot</p><p><i>Typing...</i></p>`;
+        chatHistory.appendChild(typingIndicator);
+        chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll down
+
+        try {
+            // Send the message to the webhook
+            const response = await fetch(webhookUrl, {
                 method: 'POST',
-                headers: {}
-            },
-            target: '#n8n-chat',
-            mode: 'window',
-            chatInputKey: 'chatInput',
-            chatSessionKey: 'sessionId',
-            metadata: {},
-            showWelcomeScreen: false,
-            defaultLanguage: 'en',
-            initialMessages: [
-                'Hi there! 👋',
-                'My name is Nathan. How can I assist you today?'
-            ],
-            i18n: {
-                en: {
-                    title: 'Hi there! 👋',
-                    subtitle: "Start a chat. We're here to help you 24/7.",
-                    footer: '',
-                    getStarted: 'New Conversation',
-                    inputPlaceholder: 'Type your question..',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add any other required headers here (e.g., authorization)
                 },
-            },
-        });
-    </script>
-</body>
+                body: JSON.stringify({ message: messageText, user: currentUsername }), // Send message and user
+            });
 
+            // Remove the typing indicator once response starts coming in
+            if (chatHistory.contains(typingIndicator)) {
+                 chatHistory.removeChild(typingIndicator);
+            }
+
+            if (!response.ok) {
+                // Handle HTTP errors (e.g., 404 Not Found, 500 Internal Server Error)
+                const errorText = await response.text(); // Get error details if available
+                throw new Error(`Webhook error: ${response.status} ${response.statusText}. ${errorText}`);
+            }
+
+            // Process the response from the webhook
+            let botReply = '';
+            try {
+                 // Assume the webhook returns JSON with a 'reply' or 'message' field
+                 const data = await response.json();
+                 botReply = data.reply || data.message || JSON.stringify(data); // Adjust field name as needed
+            } catch (jsonError) {
+                 // If response is not JSON, try to read it as plain text
+                 console.warn("Webhook response wasn't valid JSON, attempting to read as text.", jsonError);
+                 // Need to re-fetch or handle differently as response body might be consumed
+                 // For simplicity, let's assume the initial non-ok check caught major issues
+                 // or the webhook *should* return JSON. If plain text is expected, adjust logic here.
+                 botReply = "Received a non-JSON response from the bot.";
+            }
+
+
+            if (!botReply) {
+                botReply = "Received an empty response from the bot.";
+            }
+
+            // Display the bot's response
+            addMessage(botReply, 'bot', 'Bot');
+
+        } catch (error) {
+            // Handle network errors or errors thrown during fetch/processing
+            console.error('Error sending message via webhook:', error);
+
+            // Ensure typing indicator is removed even if an error occurs
+             if (chatHistory.contains(typingIndicator)) {
+                 chatHistory.removeChild(typingIndicator);
+            }
+
+            // Display an error message in the chat interface
+            addMessage(`Sorry, I couldn't connect to the bot. Please try again later. (Error: ${error.message})`, 'system', 'System');
+        }
+    }
+
+    // --- Login Functions ---
+
+    /**
+     * Handles the login attempt.
+     * NOTE: This requires a 'users.json' file in the same directory
+     * with the format: [{"username": "user1", "password": "pw1"}, ...]
+     */
+    async function handleLogin() {
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!username || !password) {
+            errorMessage.textContent = 'Please enter both username and password.';
+            errorMessage.classList.remove('hidden');
+            return;
+        }
+
+        errorMessage.classList.add('hidden'); // Hide error message initially
+
+        try {
+            // Fetch the user data (ensure users.json exists and is accessible)
+            const response = await fetch('users.json');
+            if (!response.ok) {
+                throw new Error(`Could not load user data (users.json): ${response.statusText}`);
+            }
+            const users = await response.json();
+
+            // Find a matching user
+            const userMatch = users.find(user => user.username === username && user.password === password);
+
+            if (userMatch) {
+                // Successful login
+                showChatContainer(username); // Pass username to display
+            } else {
+                // Invalid credentials
+                errorMessage.textContent = 'Invalid username or password.';
+                errorMessage.classList.remove('hidden');
+                // Optional: Clear password field on failure
+                passwordInput.value = '';
+            }
+        } catch (error) {
+            // Handle errors during fetch or processing
+            console.error('Login error:', error);
+            errorMessage.textContent = `Login failed: ${error.message}. Ensure 'users.json' is present and correct.`;
+            errorMessage.classList.remove('hidden');
+        }
+    }
+
+    // --- Event Listeners ---
+
+    // Send message on button click
+    sendButton.addEventListener('click', sendMessage);
+
+    // Send message on Enter key press in the input field
+    messageInput.addEventListener('keydown', (event) => {
+        // Check if Enter key was pressed without the Shift key
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // Prevent default Enter behavior (like adding a new line)
+            sendMessage();
+        }
+    });
+
+    // Handle login on button click
+    loginButton.addEventListener('click', handleLogin);
+
+    // Handle login on Enter key press in password field
+     passwordInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+             handleLogin();
+        }
+    });
+     usernameInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+             // Move focus to password or attempt login directly
+             passwordInput.focus();
+        }
+    });
+
+
+    // --- Initial Setup ---
+
+    // Show the login form when the page loads
+    window.addEventListener('load', () => {
+        showLoginForm();
+        usernameInput.focus(); // Focus the username field on load
+    });
+
+</script>
+
+</body>
 </html>
